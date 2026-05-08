@@ -194,7 +194,6 @@ tr:hover td{background:#f8fbf8}
   </header>
   <nav class="nav-tabs" id="navTabs">
     <button class="tab active" data-view="overview">Resumen ejecutivo</button>
-    <button class="tab" data-view="comparativos">Comparativos</button>
     <button class="tab" data-view="dptos">Dptos - General</button>
     <button class="tab" data-view="casas">Casas - General</button>
     <button class="tab" data-view="subsidios">Subsidios / Venta</button>
@@ -220,33 +219,28 @@ tr:hover td{background:#f8fbf8}
   </section>
   <main class="main">
     <section class="view active" id="view-overview">
-      <div class="section-head"><div class="section-title"><span>Resumen ejecutivo</span><h2>Lectura integral del mercado</h2><p>Oferta, ventas, precios, subsidios y pipeline con base en los Excel de seguimiento comercial.</p></div><div class="summary-read" id="executiveRead"></div></div>
-      <div class="kpi-grid" id="kpiOverview"></div>
-      <div class="grid">
-        <div class="card wide tall"><div class="card-head"><div><div class="card-title">Evolucion oferta, stock y ventas</div><div class="card-sub">Serie historica por producto y periodo de seguimiento.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chStockTrend"></canvas></div></div>
-        <div class="card small"><div class="card-head"><div><div class="card-title">Mix por producto</div><div class="card-sub">Stock actual y venta acumulada.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chProductMix"></canvas></div></div>
-        <div class="card small"><div class="card-head"><div><div class="card-title">Estado de obra</div><div class="card-sub">Distribucion de stock por avance.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chEstado"></canvas></div></div>
-        <div class="card small"><div class="card-head"><div><div class="card-title">Alertas de mercado</div><div class="card-sub">Lecturas automaticas segun stock, velocidad y concentracion.</div></div><span class="card-dot"></span></div><div class="alerts" id="marketAlerts"></div></div>
-        <div class="card"><div class="card-head"><div><div class="card-title">Precio promedio UF/m2</div><div class="card-sub">Evolucion por producto.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chPriceTrend"></canvas></div></div>
-        <div class="card"><div class="card-head"><div><div class="card-title">Stock por desarrollador</div><div class="card-sub">Concentracion competitiva del periodo.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chDeveloper"></canvas></div></div>
-      </div>
-    </section>
-
-    <section class="view" id="view-comparativos">
-      <div class="section-head"><div class="section-title"><span>Comparativos historicos</span><h2>Evolucion por meses y años</h2><p>Compara los Excel de seguimiento entre periodos. Los filtros globales se mantienen activos para cruzar por producto, sector, tipo de venta, subsidio, tipologia, desarrollador o rango UF.</p></div><div class="summary-read" id="compareRead"></div></div>
+      <div class="section-head"><div class="section-title"><span>Dashboard general</span><h2>Resumen ejecutivo comparativo</h2><p>Lectura integral entre meses y años: oferta, ventas, precios, subsidios, absorcion y pipeline con base en los Excel de seguimiento comercial.</p></div><div class="summary-read" id="executiveRead"></div></div>
       <div class="table-card" style="margin-bottom:14px">
-        <div class="card-title">Configurar comparacion</div>
+        <div class="card-title">Comparativo entre periodos</div>
         <div class="pivot-controls compare-controls">
           <div class="control"><label>Periodo base</label><select id="cmpBase"></select></div>
           <div class="control"><label>Comparar contra</label><select id="cmpCompare"></select></div>
           <div class="control"><label>Vista</label><select id="cmpMode"><option value="all">Todos los periodos</option><option value="pair">Solo comparacion seleccionada</option></select></div>
         </div>
       </div>
+      <div class="summary-read" id="compareRead" style="max-width:none;margin-bottom:14px"></div>
       <div class="kpi-grid" id="kpiComparativos"></div>
+      <div class="kpi-grid" id="kpiOverview"></div>
       <div class="grid">
         <div class="card wide"><div class="card-head"><div><div class="card-title">Stock y ventas por periodo</div><div class="card-sub">Evolucion de inventario disponible y absorcion neta.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chCompareStockSales"></canvas></div></div>
         <div class="card"><div class="card-head"><div><div class="card-title">Precio UF/m2 historico</div><div class="card-sub">Promedio ponderado por stock para cada corte.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chComparePrice"></canvas></div></div>
         <div class="card"><div class="card-head"><div><div class="card-title">Stock por producto</div><div class="card-sub">Base seleccionada versus periodo comparado.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chCompareProduct"></canvas></div></div>
+        <div class="card wide tall"><div class="card-head"><div><div class="card-title">Evolucion historica comparativa</div><div class="card-sub">Serie de stock, venta acumulada y ventas para todos los cortes disponibles.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chStockTrend"></canvas></div></div>
+        <div class="card small"><div class="card-head"><div><div class="card-title">Ventas por producto</div><div class="card-sub">Periodo base versus periodo comparado.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chProductMix"></canvas></div></div>
+        <div class="card small"><div class="card-head"><div><div class="card-title">Estado de obra comparado</div><div class="card-sub">Stock por avance de obra en ambos periodos.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chEstado"></canvas></div></div>
+        <div class="card small"><div class="card-head"><div><div class="card-title">Lecturas comparativas</div><div class="card-sub">Alertas automaticas entre periodo base y periodo comparado.</div></div><span class="card-dot"></span></div><div class="alerts" id="marketAlerts"></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">UF/m2 por producto</div><div class="card-sub">Evolucion historica comparativa por producto.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chPriceTrend"></canvas></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">Desarrolladores comparados</div><div class="card-sub">Stock del periodo base versus periodo comparado.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chDeveloper"></canvas></div></div>
       </div>
       <div class="table-card"><div class="card-title">Tabla comparativa historica</div><div class="table-wrap"><table><thead><tr><th>Periodo</th><th>Proyectos</th><th>Stock</th><th>Var. stock</th><th>Ventas periodo</th><th>Var. ventas</th><th>UF/m2</th><th>Var. UF/m2</th><th>Ticket UF</th><th>Meses stock</th><th>% vendido</th><th>Valor por vender</th></tr></thead><tbody id="tblComparativos"></tbody></table></div></div>
     </section>
@@ -472,37 +466,45 @@ function logout(){$("lp").value="";$("lerr").style.display="none";$("app").style
 $("lp").addEventListener("keypress",e=>{if(e.key==="Enter")login()});
 function renderAll(){
   const rows=rowsBase(); const prev=PERIODS[Math.max(0,PERIODS.indexOf($("fPeriod").value)-1)]||PERIODS[0]; const comp=compareRows(rows,rowsBase(prev));
-  const m=metric(rows); $("pillProjects").textContent=`${m.projects} proyectos`; $("pillMonths").textContent=`${m.months?fmt(m.months,1):"-"} meses stock`;
-  $("executiveRead").innerHTML=`<strong>${$("fPeriod").value}:</strong> ${m.projects} proyectos, ${fmt(m.stock)} unidades disponibles, ${fmt(m.sales)} ventas netas del periodo y ${m.ufm2?fmt(m.ufm2,1):"-"} UF/m2 promedio ponderado. Valor remanente estimado: <strong>${uf(m.value)}</strong>.`;
+  const baseP=$("cmpBase")?.value||$("fPeriod").value||latestPeriod, compP=$("cmpCompare")?.value||prev, baseMetric=metric(rowsBase(baseP)), compareMetric=metric(rowsBase(compP));
+  $("pillProjects").textContent=`${baseMetric.projects} proyectos`;
+  $("pillMonths").textContent=`${baseMetric.months?fmt(baseMetric.months,1):"-"} meses stock`;
+  $("executiveRead").innerHTML=`<strong>${baseP} vs ${compP}:</strong> ${baseMetric.projects} proyectos, ${fmt(baseMetric.stock)} unidades disponibles, ${fmt(baseMetric.sales)} ventas netas y ${baseMetric.ufm2?fmt(baseMetric.ufm2,1):"-"} UF/m2 promedio. Variacion de stock: ${compareDelta(baseMetric.stock,compareMetric.stock," uds",0,true)}.`;
   renderOverview(rows,comp); renderComparativos(); renderProduct("Departamentos","Dptos",rowsBase($("fPeriod").value).filter(r=>r.producto==="Departamentos")); renderProduct("Casas","Casas",rowsBase($("fPeriod").value).filter(r=>r.producto==="Casas"));
   renderSubsidios(rows); renderPrecios(rows); renderAbsorcion(rows); renderPipeline(); renderProjects(rows); renderAnalyzer(rows); renderDatos(rows);
 }
 function renderOverview(rows,comp){
-  const m=metric(rows);
+  const baseP=$("cmpBase")?.value||$("fPeriod").value||latestPeriod, compP=$("cmpCompare")?.value||PERIODS[Math.max(0,PERIODS.length-2)];
+  const baseRows=rowsBase(baseP), compRows=rowsBase(compP), m=metric(baseRows), c=metric(compRows);
   $("kpiOverview").innerHTML=[
-    kpi("Stock disponible",fmt(m.stock)," unid","Unidades vigentes",deltaText(comp.stock," uds",true)),
-    kpi("Proyectos activos",fmt(m.projects),"","Proyectos en la base",deltaText(comp.projects,"")),
-    kpi("Ventas periodo",fmt(m.sales)," unid","Absorcion neta",deltaText(comp.sales," uds")),
-    kpi("UF/m2 promedio",m.ufm2?fmt(m.ufm2,1):"-"," UF/m2","Ponderado por stock",deltaText(comp.ufm2,"")),
-    kpi("Ticket promedio",m.ticket?fmt(m.ticket,0):"-"," UF","Promedio ponderado",deltaText(comp.ticket," UF")),
-    kpi("Meses stock",m.months?fmt(m.months,1):"-"," meses","Stock / velocidad mensual",m.months&&m.months>18?'<span class="delta down">Stock alto</span>':'<span class="delta">Ritmo sano</span>'),
-    kpi("Valor por vender",fmt(m.value/1000000,1)," MM UF","Total UF x vender"),
-    kpi("% vendido",m.pctSold?pct(m.pctSold,1):"-","","Venta acumulada / oferta")
+    kpi("Venta acumulada",fmt(m.sold)," unid",`${baseP} vs ${compP}`,compareDelta(m.sold,c.sold," uds")),
+    kpi("Oferta total",fmt(m.total)," unid","Stock + venta acum.",compareDelta(m.total,c.total," uds")),
+    kpi("Stock disponible",fmt(m.stock)," unid","Unidades vigentes",compareDelta(m.stock,c.stock," uds",0,true))
   ].join("");
-  renderAlerts(rows);
-  const series=PERIODS.map(p=>({p,d:metric(rowsBase(p).filter(r=>!$("fProduct").value||r.producto===$("fProduct").value))}));
+  renderAlerts(baseRows,compRows,baseP,compP);
+  const series=PERIODS.map(p=>({p,d:metric(rowsBase(p))}));
   setChart("chStockTrend","line",{labels:PERIODS,datasets:[
     {label:"Stock",data:series.map(x=>x.d.stock),borderColor:COLORS.lime,backgroundColor:"rgba(145,216,71,.10)",fill:true,tension:.35},
     {label:"Venta acumulada",data:series.map(x=>x.d.sold),borderColor:COLORS.teal,backgroundColor:"rgba(45,198,163,.08)",fill:true,tension:.35},
     {label:"Ventas periodo",data:series.map(x=>x.d.sales),borderColor:COLORS.orange,borderDash:[5,4],tension:.35}
   ]});
-  const prod=[...group(rows,"producto")].map(([k,a])=>({k,stock:sum(a,"stock"),sold:sum(a,"ventaAcumulada")}));
-  setChart("chProductMix","doughnut",{labels:prod.map(x=>x.k),datasets:[{data:prod.map(x=>x.stock),backgroundColor:[COLORS.teal,COLORS.lime,COLORS.orange],borderColor:"#ffffff",borderWidth:3}]},{cutout:"62%"});
-  const est=sortedEntries(rows,"estadoObra","stock",8);
-  setChart("chEstado","bar",{labels:est.map(x=>x.key),datasets:[{label:"Stock",data:est.map(x=>x.stock),backgroundColor:COLORS.teal,borderRadius:8}]},{indexAxis:"y"});
-  setChart("chPriceTrend","line",{labels:PERIODS,datasets:["Departamentos","Casas"].map((prod,i)=>({label:prod,data:PERIODS.map(p=>metric(rowsBase(p).filter(r=>r.producto===prod)).ufm2),borderColor:i?COLORS.lime:COLORS.teal,backgroundColor:"transparent",tension:.35}))});
-  const dev=sortedEntries(rows,"desarrollador","stock",10);
-  setChart("chDeveloper","bar",{labels:dev.map(x=>x.key),datasets:[{label:"Stock",data:dev.map(x=>x.stock),backgroundColor:COLORS.lime,borderRadius:8}]},{indexAxis:"y"});
+  const products=uniq(RAW,"producto");
+  setChart("chProductMix","bar",{labels:products,datasets:[
+    {label:compP,data:products.map(p=>sum(compRows.filter(r=>r.producto===p),"ventasPeriodo")),backgroundColor:COLORS.gray,borderRadius:8},
+    {label:baseP,data:products.map(p=>sum(baseRows.filter(r=>r.producto===p),"ventasPeriodo")),backgroundColor:COLORS.orange,borderRadius:8}
+  ]});
+  const states=[...new Set([...sortedEntries(baseRows,"estadoObra","stock",8).map(x=>x.key),...sortedEntries(compRows,"estadoObra","stock",8).map(x=>x.key)])].slice(0,10);
+  setChart("chEstado","bar",{labels:states,datasets:[
+    {label:compP,data:states.map(s=>sum(compRows.filter(r=>norm(r.estadoObra)===s),"stock")),backgroundColor:COLORS.gray,borderRadius:8},
+    {label:baseP,data:states.map(s=>sum(baseRows.filter(r=>norm(r.estadoObra)===s),"stock")),backgroundColor:COLORS.teal,borderRadius:8}
+  ]},{indexAxis:"y"});
+  const productSeries=$("fProduct").value?[$("fProduct").value]:["Departamentos","Casas"];
+  setChart("chPriceTrend","line",{labels:PERIODS,datasets:productSeries.map((prod,i)=>({label:prod,data:PERIODS.map(p=>metric(rowsBase(p).filter(r=>r.producto===prod)).ufm2),borderColor:i?COLORS.lime:COLORS.teal,backgroundColor:"transparent",tension:.35}))});
+  const devs=[...new Set([...sortedEntries(baseRows,"desarrollador","stock",10).map(x=>x.key),...sortedEntries(compRows,"desarrollador","stock",10).map(x=>x.key)])].slice(0,12);
+  setChart("chDeveloper","bar",{labels:devs,datasets:[
+    {label:compP,data:devs.map(d=>sum(compRows.filter(r=>norm(r.desarrollador)===d),"stock")),backgroundColor:COLORS.gray,borderRadius:8},
+    {label:baseP,data:devs.map(d=>sum(baseRows.filter(r=>norm(r.desarrollador)===d),"stock")),backgroundColor:COLORS.lime,borderRadius:8}
+  ]},{indexAxis:"y"});
 }
 function renderComparativos(){
   const baseP=$("cmpBase")?.value||latestPeriod, compP=$("cmpCompare")?.value||PERIODS[Math.max(0,PERIODS.length-2)], mode=$("cmpMode")?.value||"all";
@@ -544,6 +546,19 @@ function renderAlerts(rows){
   if(m.discount)alerts.push(["ok","Descuento promedio",`Diferencia lista/cierre estimada en ${pct(m.discount,1)}.`]);
   if(!alerts.length)alerts.push(["ok","Mercado sin alertas criticas","Los filtros actuales no levantan riesgos automaticos."]);
   $("marketAlerts").innerHTML=alerts.slice(0,5).map(a=>`<div class="alert ${a[0]==="warn"?"warn":""}"><i>${a[0]==="warn"?"!":"✓"}</i><div><b>${a[1]}</b><span>${a[2]}</span></div></div>`).join("");
+}
+function renderAlerts(rows,compareRows=[],baseP="Periodo base",compP="Periodo comparado"){
+  const m=metric(rows), c=metric(compareRows), projects=byProject(rows), prevProjects=byProject(compareRows), dev=sortedEntries(rows,"desarrollador","stock",1)[0];
+  const previousStock=new Map(prevProjects.map(p=>[p.project,p.stock]));
+  const topDelta=projects.map(p=>({project:p.project,delta:p.stock-(previousStock.get(p.project)||0),stock:p.stock})).sort((a,b)=>b.delta-a.delta)[0];
+  const alerts=[
+    [m.stock>c.stock?"warn":"ok","Variacion de stock",`${baseP} registra ${fmt(m.stock)} unidades, versus ${fmt(c.stock)} en ${compP}: ${fmt(m.stock-c.stock)} unidades de diferencia.`],
+    [m.sales<c.sales?"warn":"ok","Variacion de ventas",`${baseP} muestra ${fmt(m.sales)} ventas netas, versus ${fmt(c.sales)} en ${compP}.`]
+  ];
+  if(m.ufm2&&c.ufm2)alerts.push([m.ufm2>c.ufm2?"ok":"warn","Precio UF/m2 comparado",`El UF/m2 pasa de ${fmt(c.ufm2,1)} a ${fmt(m.ufm2,1)}, una diferencia de ${fmt(m.ufm2-c.ufm2,1)} UF/m2.`]);
+  if(topDelta)alerts.push([topDelta.delta>0?"warn":"ok","Proyecto con mayor cambio de stock",`${topDelta.project} cambia en ${fmt(topDelta.delta)} unidades frente a ${compP}.`]);
+  if(dev&&m.stock)alerts.push(["ok","Concentracion actual",`${dev.key} concentra ${pct(dev.stock/m.stock,1)} del stock filtrado en ${baseP}.`]);
+  $("marketAlerts").innerHTML=alerts.slice(0,5).map(a=>`<div class="alert ${a[0]==="warn"?"warn":""}"><i>${a[0]==="warn"?"!":"i"}</i><div><b>${a[1]}</b><span>${a[2]}</span></div></div>`).join("");
 }
 function renderProduct(product,label,rows){
   const id=product==="Departamentos"?"Dptos":"Casas", m=metric(rows), prev=metric(rowsBase(PERIODS[Math.max(0,PERIODS.indexOf($("fPeriod").value)-1)]).filter(r=>r.producto===product));
