@@ -137,6 +137,7 @@ tr:hover td{background:#f8fbf8}
 .subtab.active{background:var(--teal);border-color:var(--teal);color:#fff}
 .pivot-layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:12px}
 .pivot-controls{display:grid;gap:10px}
+.compare-controls{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .empty{display:grid;place-items:center;min-height:180px;color:var(--muted);text-align:center;border:1px dashed var(--line2);border-radius:14px}
 
 @media(max-width:1280px){
@@ -156,6 +157,7 @@ tr:hover td{background:#f8fbf8}
   .main{padding:18px 16px 34px}
   .section-head{display:block}.summary-read{margin-top:14px;max-width:none}
   .kpi-grid{grid-template-columns:1fr}
+  .compare-controls{grid-template-columns:1fr}
   #loginScreen{padding:24px}.login-logo{width:min(250px,78vw)}.login-options{display:block;text-align:left}.login-options a{display:block;margin-top:12px}.login-btn{width:100%}
   .table-wrap table{min-width:900px}
 }
@@ -192,6 +194,7 @@ tr:hover td{background:#f8fbf8}
   </header>
   <nav class="nav-tabs" id="navTabs">
     <button class="tab active" data-view="overview">Resumen ejecutivo</button>
+    <button class="tab" data-view="comparativos">Comparativos</button>
     <button class="tab" data-view="dptos">Dptos - General</button>
     <button class="tab" data-view="casas">Casas - General</button>
     <button class="tab" data-view="subsidios">Subsidios / Venta</button>
@@ -227,6 +230,25 @@ tr:hover td{background:#f8fbf8}
         <div class="card"><div class="card-head"><div><div class="card-title">Precio promedio UF/m2</div><div class="card-sub">Evolucion por producto.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chPriceTrend"></canvas></div></div>
         <div class="card"><div class="card-head"><div><div class="card-title">Stock por desarrollador</div><div class="card-sub">Concentracion competitiva del periodo.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chDeveloper"></canvas></div></div>
       </div>
+    </section>
+
+    <section class="view" id="view-comparativos">
+      <div class="section-head"><div class="section-title"><span>Comparativos historicos</span><h2>Evolucion por meses y años</h2><p>Compara los Excel de seguimiento entre periodos. Los filtros globales se mantienen activos para cruzar por producto, sector, tipo de venta, subsidio, tipologia, desarrollador o rango UF.</p></div><div class="summary-read" id="compareRead"></div></div>
+      <div class="table-card" style="margin-bottom:14px">
+        <div class="card-title">Configurar comparacion</div>
+        <div class="pivot-controls compare-controls">
+          <div class="control"><label>Periodo base</label><select id="cmpBase"></select></div>
+          <div class="control"><label>Comparar contra</label><select id="cmpCompare"></select></div>
+          <div class="control"><label>Vista</label><select id="cmpMode"><option value="all">Todos los periodos</option><option value="pair">Solo comparacion seleccionada</option></select></div>
+        </div>
+      </div>
+      <div class="kpi-grid" id="kpiComparativos"></div>
+      <div class="grid">
+        <div class="card wide"><div class="card-head"><div><div class="card-title">Stock y ventas por periodo</div><div class="card-sub">Evolucion de inventario disponible y absorcion neta.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chCompareStockSales"></canvas></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">Precio UF/m2 historico</div><div class="card-sub">Promedio ponderado por stock para cada corte.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chComparePrice"></canvas></div></div>
+        <div class="card"><div class="card-head"><div><div class="card-title">Stock por producto</div><div class="card-sub">Base seleccionada versus periodo comparado.</div></div><span class="card-dot"></span></div><div class="chart"><canvas id="chCompareProduct"></canvas></div></div>
+      </div>
+      <div class="table-card"><div class="card-title">Tabla comparativa historica</div><div class="table-wrap"><table><thead><tr><th>Periodo</th><th>Proyectos</th><th>Stock</th><th>Var. stock</th><th>Ventas periodo</th><th>Var. ventas</th><th>UF/m2</th><th>Var. UF/m2</th><th>Ticket UF</th><th>Meses stock</th><th>% vendido</th><th>Valor por vender</th></tr></thead><tbody id="tblComparativos"></tbody></table></div></div>
     </section>
 
     <section class="view" id="view-dptos">
@@ -387,6 +409,23 @@ function rowsBase(period=$("fPeriod")?.value||latestPeriod, ignorePeriod=false){
 function rowsPeriod(period, extra={}){return RAW.filter(r=>r.periodo===period&&(!extra.producto||r.producto===extra.producto)&&(!extra.tipoVenta||r.tipoVenta===extra.tipoVenta))}
 function compareRows(curr,prev){const a=metric(curr),b=metric(prev);return {a,b,stock:a.stock-b.stock,sales:a.sales-b.sales,ufm2:(a.ufm2||0)-(b.ufm2||0),ticket:(a.ticket||0)-(b.ticket||0),projects:a.projects-b.projects}}
 function deltaText(v,suffix="",inverse=false){const cls=(inverse? v<0:v>=0)?"":"down";const arrow=v>0?"▲":v<0?"▼":"=";return `<span class="delta ${cls}">${arrow} ${fmt(Math.abs(v),suffix==="%"?1:0)}${suffix}</span>`}
+function compareDelta(curr,prev,suffix="",decimals=0,inverse=false){
+  const diff=(Number(curr)||0)-(Number(prev)||0), base=Math.abs(Number(prev)||0);
+  const pctTxt=base?` (${diff>=0?"+":"-"}${fmt(Math.abs(diff/base*100),1)}%)`:"";
+  const cls=(inverse?diff<0:diff>=0)?"":"down";
+  return `<span class="delta ${cls}">${diff>=0?"+":"-"}${fmt(Math.abs(diff),decimals)}${suffix}${pctTxt}</span>`;
+}
+function deltaBadge(v,decimals=0,suffix=""){
+  if(v===null||v===undefined||!Number.isFinite(Number(v)))return "-";
+  const cls=v>0?"teal":v<0?"red":"gray";
+  return `<span class="badge ${cls}">${v>0?"+":""}${fmt(v,decimals)}${suffix}</span>`;
+}
+function comparisonRows(){
+  return PERIODS.map((p,i)=>{const m=metric(rowsBase(p)), prev=i?metric(rowsBase(PERIODS[i-1])):null;return {
+    periodo:p,proyectos:m.projects,stock:m.stock,varStock:prev?m.stock-prev.stock:null,ventasPeriodo:m.sales,varVentas:prev?m.sales-prev.sales:null,
+    ufm2:m.ufm2,varUfm2:prev&&m.ufm2&&prev.ufm2?m.ufm2-prev.ufm2:null,ticket:m.ticket,mesesStock:m.months,pctVendido:m.pctSold,valorUFVender:m.value
+  }});
+}
 function kpi(label,value,suffix,note,delta,down=false){return `<div class="kpi"><div class="label">${label}</div><div class="value">${value}<span class="suffix">${suffix||""}</span></div>${delta||""}<div class="note">${note||""}</div></div>`}
 function setChart(id,type,data,options={}){
   if(charts[id])charts[id].destroy();
@@ -412,10 +451,12 @@ function init(){
   fillSelect($("fDeveloper"),uniq(RAW,"desarrollador"),"",true);
   fillSelect($("fEstado"),uniq(RAW,"estadoObra"),"",true);
   fillSelect($("fRangoUF"),uniq(RAW,"rangoUF"),"",true);
+  fillSelect($("cmpBase"),PERIODS,latestPeriod,false);
+  fillSelect($("cmpCompare"),PERIODS,PERIODS[Math.max(0,PERIODS.length-2)],false);
   fillSelect($("pivotRow"),dims.map(d=>d[1]),"desarrollador",false,dims.map(d=>d[0]));
   fillSelect($("pivotCol"),[["","Sin columnas"],...dims].map(d=>Array.isArray(d)?d[1]:d),"producto",false,["",...dims.map(d=>d[0])]);
   fillSelect($("pivotMetric"),metrics.map(m=>m[1]),"stock",false,metrics.map(m=>m[0]));
-  document.querySelectorAll(".filter-strip select,.filter-strip input,#pivotRow,#pivotCol,#pivotMetric,#pivotAgg").forEach(el=>el.addEventListener("input",renderAll));
+  document.querySelectorAll(".filter-strip select,.filter-strip input,#cmpBase,#cmpCompare,#cmpMode,#pivotRow,#pivotCol,#pivotMetric,#pivotAgg").forEach(el=>el.addEventListener("input",renderAll));
   document.querySelectorAll(".tab").forEach(btn=>btn.addEventListener("click",()=>setView(btn.dataset.view)));
   renderAll();
 }
@@ -433,7 +474,7 @@ function renderAll(){
   const rows=rowsBase(); const prev=PERIODS[Math.max(0,PERIODS.indexOf($("fPeriod").value)-1)]||PERIODS[0]; const comp=compareRows(rows,rowsBase(prev));
   const m=metric(rows); $("pillProjects").textContent=`${m.projects} proyectos`; $("pillMonths").textContent=`${m.months?fmt(m.months,1):"-"} meses stock`;
   $("executiveRead").innerHTML=`<strong>${$("fPeriod").value}:</strong> ${m.projects} proyectos, ${fmt(m.stock)} unidades disponibles, ${fmt(m.sales)} ventas netas del periodo y ${m.ufm2?fmt(m.ufm2,1):"-"} UF/m2 promedio ponderado. Valor remanente estimado: <strong>${uf(m.value)}</strong>.`;
-  renderOverview(rows,comp); renderProduct("Departamentos","Dptos",rowsBase($("fPeriod").value).filter(r=>r.producto==="Departamentos")); renderProduct("Casas","Casas",rowsBase($("fPeriod").value).filter(r=>r.producto==="Casas"));
+  renderOverview(rows,comp); renderComparativos(); renderProduct("Departamentos","Dptos",rowsBase($("fPeriod").value).filter(r=>r.producto==="Departamentos")); renderProduct("Casas","Casas",rowsBase($("fPeriod").value).filter(r=>r.producto==="Casas"));
   renderSubsidios(rows); renderPrecios(rows); renderAbsorcion(rows); renderPipeline(); renderProjects(rows); renderAnalyzer(rows); renderDatos(rows);
 }
 function renderOverview(rows,comp){
@@ -462,6 +503,37 @@ function renderOverview(rows,comp){
   setChart("chPriceTrend","line",{labels:PERIODS,datasets:["Departamentos","Casas"].map((prod,i)=>({label:prod,data:PERIODS.map(p=>metric(rowsBase(p).filter(r=>r.producto===prod)).ufm2),borderColor:i?COLORS.lime:COLORS.teal,backgroundColor:"transparent",tension:.35}))});
   const dev=sortedEntries(rows,"desarrollador","stock",10);
   setChart("chDeveloper","bar",{labels:dev.map(x=>x.key),datasets:[{label:"Stock",data:dev.map(x=>x.stock),backgroundColor:COLORS.lime,borderRadius:8}]},{indexAxis:"y"});
+}
+function renderComparativos(){
+  const baseP=$("cmpBase")?.value||latestPeriod, compP=$("cmpCompare")?.value||PERIODS[Math.max(0,PERIODS.length-2)], mode=$("cmpMode")?.value||"all";
+  const base=metric(rowsBase(baseP)), comp=metric(rowsBase(compP));
+  $("compareRead").innerHTML=`<strong>${baseP} vs ${compP}:</strong> stock ${compareDelta(base.stock,comp.stock," uds",0,true)}, ventas ${compareDelta(base.sales,comp.sales," uds")} y UF/m2 ${compareDelta(base.ufm2||0,comp.ufm2||0,"",1)}.`;
+  $("kpiComparativos").innerHTML=[
+    kpi("Stock base",fmt(base.stock)," unid",`${baseP} vs ${compP}`,compareDelta(base.stock,comp.stock," uds",0,true)),
+    kpi("Ventas periodo",fmt(base.sales)," unid","Absorcion neta",compareDelta(base.sales,comp.sales," uds")),
+    kpi("UF/m2 promedio",base.ufm2?fmt(base.ufm2,1):"-"," UF/m2","Promedio ponderado",compareDelta(base.ufm2||0,comp.ufm2||0,"",1)),
+    kpi("Ticket promedio",base.ticket?fmt(base.ticket,0):"-"," UF","Cierre ponderado",compareDelta(base.ticket||0,comp.ticket||0," UF",0)),
+    kpi("Proyectos",fmt(base.projects),"","Competencia activa",compareDelta(base.projects,comp.projects,"")),
+    kpi("Meses stock",base.months?fmt(base.months,1):"-"," meses","Stock / velocidad",compareDelta(base.months||0,comp.months||0,"",1,true)),
+    kpi("Valor por vender",fmt(base.value/1000000,1)," MM UF","Inventario valorizado",compareDelta((base.value||0)/1000000,(comp.value||0)/1000000," MM",1,true)),
+    kpi("% vendido",base.pctSold?pct(base.pctSold,1):"-","","Avance comercial",compareDelta((base.pctSold||0)*100,(comp.pctSold||0)*100," pp",1))
+  ].join("");
+  const chartPeriods=mode==="pair"?[compP,baseP].filter((p,i,a)=>a.indexOf(p)===i):PERIODS;
+  const hist=chartPeriods.map(p=>({p,m:metric(rowsBase(p))}));
+  setChart("chCompareStockSales","bar",{labels:chartPeriods,datasets:[
+    {label:"Stock",data:hist.map(x=>x.m.stock),backgroundColor:COLORS.teal,borderRadius:8},
+    {label:"Ventas periodo",data:hist.map(x=>x.m.sales),backgroundColor:COLORS.orange,borderRadius:8}
+  ]});
+  setChart("chComparePrice","line",{labels:chartPeriods,datasets:[
+    {label:"UF/m2",data:hist.map(x=>x.m.ufm2),borderColor:COLORS.teal,backgroundColor:"rgba(14,107,99,.08)",fill:true,tension:.35,yAxisID:"y"},
+    {label:"Ticket UF",data:hist.map(x=>x.m.ticket),borderColor:COLORS.lime,backgroundColor:"transparent",tension:.35,yAxisID:"y1"}
+  ]},{scales:{x:{grid:{color:"#edf0f2"},ticks:{color:"#64748b",font:{size:11}}},y:{grid:{color:"#edf0f2"},ticks:{color:"#64748b"},beginAtZero:true,title:{display:true,text:"UF/m2"}},y1:{position:"right",grid:{drawOnChartArea:false},ticks:{color:"#64748b"},beginAtZero:true,title:{display:true,text:"Ticket UF"}}}});
+  const products=uniq(RAW,"producto"), baseRows=rowsBase(baseP), compRows=rowsBase(compP);
+  setChart("chCompareProduct","bar",{labels:products,datasets:[
+    {label:compP,data:products.map(p=>sum(compRows.filter(r=>r.producto===p),"stock")),backgroundColor:COLORS.gray,borderRadius:8},
+    {label:baseP,data:products.map(p=>sum(baseRows.filter(r=>r.producto===p),"stock")),backgroundColor:COLORS.teal,borderRadius:8}
+  ]});
+  $("tblComparativos").innerHTML=comparisonRows().map(r=>`<tr><td><b>${r.periodo}</b></td><td>${fmt(r.proyectos)}</td><td>${fmt(r.stock)}</td><td>${deltaBadge(r.varStock)}</td><td>${fmt(r.ventasPeriodo)}</td><td>${deltaBadge(r.varVentas)}</td><td>${r.ufm2?fmt(r.ufm2,1):"-"}</td><td>${deltaBadge(r.varUfm2,1)}</td><td>${r.ticket?fmt(r.ticket,0):"-"}</td><td>${r.mesesStock?fmt(r.mesesStock,1):"-"}</td><td>${r.pctVendido?pct(r.pctVendido,1):"-"}</td><td>${uf(r.valorUFVender)}</td></tr>`).join("");
 }
 function renderAlerts(rows){
   const m=metric(rows), projects=byProject(rows).sort((a,b)=>b.stock-a.stock), top=projects[0], dev=sortedEntries(rows,"desarrollador","stock",1)[0];
@@ -578,6 +650,7 @@ function exportExcel(){
   const rows=rowsBase(); const projects=byProject(rows); const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),"Base filtrada");
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(projects),"Resumen proyectos");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(comparisonRows()),"Comparativo historico");
   XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(PERMITS.filter(r=>r.periodo===$("fPeriod").value)),"Permisos");
   const m=metric(rows); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{periodo:$("fPeriod").value,stock:m.stock,ventasPeriodo:m.sales,proyectos:m.projects,desarrolladores:m.developers,ufm2:m.ufm2,ticket:m.ticket,valorUFVender:m.value,mesesStock:m.months,pctVendido:m.pctSold}]),"KPIs");
   XLSX.writeFile(wb,`Estudio_Mercado_Talca_${$("fPeriod").value.replaceAll(" ","_")}.xlsx`);
